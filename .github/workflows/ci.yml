@@ -1,18 +1,12 @@
 name: HeartCare CI
 
 # Task 5: CI/CD pipeline - lint, unit tests, and model training with artifacts.
-# Fails the build on lint or test errors so broken code cannot merge.
 
 on:
   push:
-    branches: [ main, master ]
+    branches: ["**"]
   pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
-
-defaults:
-  run:
-    working-directory: MLOP
 
 jobs:
   lint:
@@ -67,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: MLOP/test-results.xml
+          path: test-results.xml
 
       - name: Upload model + logs artifacts
         if: always()
@@ -75,10 +69,10 @@ jobs:
         with:
           name: model-artifacts
           path: |
-            MLOP/models/
-            MLOP/logs/
-            MLOP/docs/
-            MLOP/plots/
+            models/
+            logs/
+            docs/
+            plots/
 
   train:
     name: Model training (standalone)
@@ -108,6 +102,6 @@ jobs:
         with:
           name: trained-model
           path: |
-            MLOP/models/heart_disease_pipeline.pkl
-            MLOP/models/model_card.json
-            MLOP/docs/model_report.md
+            models/heart_disease_pipeline.pkl
+            models/model_card.json
+            docs/model_report.md
