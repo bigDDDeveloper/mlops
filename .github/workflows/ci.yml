@@ -1,0 +1,113 @@
+name: HeartCare CI
+
+# Task 5: CI/CD pipeline - lint, unit tests, and model training with artifacts.
+# Fails the build on lint or test errors so broken code cannot merge.
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: MLOP
+
+jobs:
+  lint:
+    name: Lint (flake8)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install lint dependencies
+        run: pip install flake8
+
+      - name: Run flake8
+        run: flake8 src tests --count
+
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build data + model artifacts
+        # Model/API tests need the packaged pipeline; build it first so the
+        # whole data -> model path is exercised in CI.
+        run: |
+          python src/data_acquisition/acquire_data.py
+          python src/validation/validate_data.py || true
+          python src/feature_engineering/build_features.py
+          python src/training/train_model.py
+          python src/packaging/package_model.py
+
+      - name: Run pytest
+        run: pytest tests/ -v --junitxml=test-results.xml
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: MLOP/test-results.xml
+
+      - name: Upload model + logs artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-artifacts
+          path: |
+            MLOP/models/
+            MLOP/logs/
+            MLOP/docs/
+            MLOP/plots/
+
+  train:
+    name: Model training (standalone)
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run full training pipeline
+        run: |
+          python src/data_acquisition/acquire_data.py
+          python src/feature_engineering/build_features.py
+          python src/training/train_model.py
+          python src/packaging/package_model.py
+
+      - name: Upload trained model
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-model
+          path: |
+            MLOP/models/heart_disease_pipeline.pkl
+            MLOP/models/model_card.json
+            MLOP/docs/model_report.md

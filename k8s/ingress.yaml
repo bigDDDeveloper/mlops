@@ -1,0 +1,22 @@
+# HeartCare API - Ingress (optional alternative to LoadBalancer, Task 7)
+# Requires an ingress controller (e.g. nginx-ingress) in the cluster.
+# Enable on Minikube with: minikube addons enable ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: heartcare-api
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: heartcare.local      # add to /etc/hosts -> <ingress IP>
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heartcare-api
+                port:
+                  number: 80

@@ -1,0 +1,21 @@
+# HeartCare API - Horizontal Pod Autoscaler (Task 7, production-readiness)
+# Scales the deployment between 2 and 6 replicas based on CPU utilization.
+# Requires metrics-server in the cluster.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heartcare-api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heartcare-api
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

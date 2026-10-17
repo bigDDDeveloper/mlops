@@ -1,0 +1,18 @@
+# HeartCare API - Service exposed via LoadBalancer (Task 7)
+# On a cloud provider (GKE/EKS/AKS) this provisions an external IP.
+# On Minikube, run `minikube service heartcare-api` or `minikube tunnel`.
+apiVersion: v1
+kind: Service
+metadata:
+  name: heartcare-api
+  labels:
+    app: heartcare-api
+spec:
+  type: LoadBalancer
+  selector:
+    app: heartcare-api
+  ports:
+    - name: http
+      port: 80          # external port
+      targetPort: 8000  # container port
+      protocol: TCP
