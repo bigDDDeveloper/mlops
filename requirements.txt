@@ -1,0 +1,28 @@
+# Core data + ML
+pandas>=1.5.0
+numpy>=1.23.0
+scikit-learn>=1.2.0
+scipy>=1.10.0
+
+# Dataset acquisition
+ucimlrepo
+
+# EDA / plotting
+matplotlib>=3.6.0
+seaborn>=0.12.0
+
+# Experiment tracking (optional - pipeline falls back if absent)
+mlflow>=2.0.0
+
+# Model serving API (optional - required for serving stage)
+fastapi>=0.100.0
+uvicorn>=0.22.0
+pydantic>=2.0.0
+
+# Monitoring (optional)
+prometheus-client>=0.17.0
+
+# Testing / linting
+pytest>=7.0.0
+flake8>=6.0.0
+httpx>=0.24.0   # required by fastapi.testclient in API tests

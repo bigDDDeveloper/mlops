@@ -1,0 +1,41 @@
+# Full local stack for Task 8: API + Prometheus + Grafana.
+# Run from the MLOP project root:
+#   docker compose up --build
+# Then:
+#   API        -> http://localhost:8000  (docs at /docs)
+#   Prometheus -> http://localhost:9090
+#   Grafana    -> http://localhost:3000  (login admin / admin)
+#                 "HeartCare API Monitoring" dashboard is auto-provisioned.
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: heartcare-api:latest
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped

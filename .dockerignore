@@ -1,0 +1,29 @@
+# Keep the build context small and the image clean.
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Experiment tracking backend - not needed at serve time
+mlflow.db
+mlruns/
+
+# Raw/intermediate data - the serving image only needs models/
+data/
+plots/
+logs/
+
+# Docs, tests, CI, k8s - not part of the runtime image
+docs/
+tests/
+k8s/
+screenshots/
+.github/
+
+# Dev requirements (serving uses docker/requirements-serving.txt)
+requirements.txt
+
+.git/
+.gitignore
+.DS_Store
+Thumbs.db
