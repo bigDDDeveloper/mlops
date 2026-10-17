@@ -4,7 +4,7 @@
 # Run:
 #   docker run -p 8000:8000 heartcare-api:latest
 
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 # Keep Python lean and logs unbuffered for container-friendly logging.
 ENV PYTHONDONTWRITEBYTECODE=1 \
